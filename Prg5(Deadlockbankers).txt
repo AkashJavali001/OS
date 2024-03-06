@@ -1,0 +1,108 @@
+#include <stdio.h>
+
+#define MAX_PROCESSES 10
+#define MAX_RESOURCES 10
+
+int max[MAX_PROCESSES][MAX_RESOURCES], need[MAX_PROCESSES][MAX_RESOURCES], alloc[MAX_PROCESSES][MAX_RESOURCES];
+int avail[MAX_RESOURCES], completed[MAX_PROCESSES], safesequence[MAX_PROCESSES];
+
+void initialize() {
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        completed[i] = 0;
+        safesequence[i] = 0;
+        for (int j = 0; j < MAX_RESOURCES; j++) {
+            max[i][j] = need[i][j] = alloc[i][j] = 0;
+        }
+    }
+}
+
+void input_data(int p, int r) {
+    printf("Enter the Max Matrix for each process:\n");
+    for (int i = 0; i < p; i++) {
+        printf("For process %d: ", i + 1);
+        for (int j = 0; j < r; j++)
+            scanf("%d", &max[i][j]);
+    }
+
+    printf("Enter the Allocation Matrix for each process:\n");
+    for (int i = 0; i < p; i++) {
+        printf("For process %d: ", i + 1);
+        for (int j = 0; j < r; j++)
+            scanf("%d", &alloc[i][j]);
+    }
+
+    printf("Enter the Available resources:\n");
+    for (int j = 0; j < r; j++)
+        scanf("%d", &avail[j]);
+}
+
+void display_matrices(int p, int r) {
+    printf("\nMax matrix:\tAllocation matrix:\n");
+    for (int i = 0; i < p; i++) {
+        for (int j = 0; j < r; j++)
+            printf("%d", max[i][j]);
+        printf("\t\t");
+        for (int j = 0; j < r; j++)
+            printf("%d", alloc[i][j]);
+        printf("\n");
+    }
+}
+
+int find_safe_sequence(int p, int r, int count) {
+    int process = -1;
+    for (int i = 0; i < p; i++) {
+        if (completed[i] == 0) {
+            process = i;
+            for (int j = 0; j < r; j++) {
+                if (avail[j] < need[i][j]) {
+                    process = -1;
+                    break;
+                }
+            }
+        }
+        if (process != -1)
+            break;
+    }
+
+    if (process != -1) {
+        safesequence[count] = process + 1;
+        count++;
+        for (int j = 0; j < r; j++) {
+            avail[j] += alloc[process][j];
+            alloc[process][j] = 0;
+            max[process][j] = 0;
+            completed[process] = 1;
+        }
+    }
+
+    return count;
+}
+
+void display_safe_sequence(int count) {
+    printf("\nSafe Sequence: <");
+    for (int i = 0; i < count; i++)
+        printf("%d", safesequence[i]);
+    printf(">\n");
+}
+
+int main() {
+    int p, r, count = 0;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &p);
+    printf("Enter the number of resources: ");
+    scanf("%d", &r);
+
+    initialize();
+    input_data(p, r);
+
+    do {
+        display_matrices(p, r);
+        count = find_safe_sequence(p, r, count);
+    } while (count != p);
+
+    printf("\nThe system is in a safe state!!\n");
+    display_safe_sequence(count);
+
+    return 0;
+}

@@ -1,0 +1,54 @@
+#include <stdio.h>
+
+#define FRAMES 3
+#define PAGES 20
+
+int frame[FRAMES];
+
+void display() {
+    printf("\n");
+    for (int i = 0; i < FRAMES; i++)
+        printf("%d \t", frame[i]);
+}
+
+int main() {
+    int page[PAGES] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 1, 2, 0, 1, 7, 0, 1};
+    int pf = 0, top = 0;
+
+    for (int i = 0; i < FRAMES; i++)
+        frame[i] = -1;
+
+    for (int j = 0; j < PAGES; j++) {
+        int flag1 = 0, flag2 = 0;
+
+        for (int i = 0; i < FRAMES; i++) {
+            if (frame[i] == page[j]) {
+                flag1 = 1;
+                flag2 = 1;
+                break;
+            }
+        }
+
+        if (flag1 == 0) {
+            for (int i = 0; i < FRAMES; i++) {
+                if (frame[i] == -1) {
+                    frame[i] = page[j];
+                    flag2 = 1;
+                    break;
+                }
+            }
+        }
+
+        if (flag2 == 0) {
+            frame[top] = page[j];
+            top = (top + 1) % FRAMES;
+            pf++;
+        }
+
+        display();
+    }
+
+    printf("Number of page faults: %d\n", pf + FRAMES);
+
+    return 0;
+}
